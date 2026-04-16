@@ -11,8 +11,7 @@ set -euo pipefail
 FW_OUT="mt7612us.bin"
 
 # Official Microsoft driver download URL (Xbox Wireless Adapter for Windows)
-# Source: Microsoft Update Catalog
-DRIVER_URL="https://download.microsoft.com/download/1/0/1/101a19ef-8a03-4230-8eb4-f1f37d54aafd/xb_acc_pcusba_2019_1210.cab"
+DRIVER_URL="http://download.windowsupdate.com/c/msdownload/update/driver/drvs/2017/07/1cd6a87c-623f-4407-a52d-c31be49e925c_e19f60808bdcbfbd3c3df6be3e71ffc52e43261e.cab"
 CAB_FILE="xbox_driver.cab"
 
 check_dep() {
@@ -23,7 +22,7 @@ check_dep() {
     fi
 }
 
-check_dep curl   curl
+check_dep curl curl
 check_dep cabextract cabextract
 
 echo "=== Xbox Wireless Adapter Firmware Extractor ==="
@@ -44,54 +43,47 @@ EXTRACT_DIR="xbox_driver_extracted"
 mkdir -p "$EXTRACT_DIR"
 cabextract -d "$EXTRACT_DIR" "$CAB_FILE" 2>/dev/null || true
 
-# -- Step 3: Find firmware blob ----------------------------------------------
+# -- Step 3: Prefer direct firmware file -------------------------------------
 echo "[3/3] Searching for firmware blob (MT7612U)..."
 
-# The firmware is embedded in a .sys or .bin file.
-# Signature: MT76 firmware starts with magic "WAIO" or specific bytes.
-# We search for the known MT7612U firmware magic: 0x23 0x00 0x00 0x00
+TARGET="$EXTRACT_DIR/FW_ACC_00U.bin"
 
-FW_MAGIC_HEX="23000000"  # MT76 firmware header magic (little-endian 0x00000023)
-FW_FOUND=0
+if [[ -f "$TARGET" ]]; then
+    cp "$TARGET" "./$FW_OUT"
+    echo "      Found FW_ACC_00U.bin → renamed to $FW_OUT"
+    FW_FOUND=1
+else
+    FW_MAGIC_HEX="23000000"
+    FW_FOUND=0
 
-for f in "$EXTRACT_DIR"/*; do
-    [[ -f "$f" ]] || continue
-    # Search magic bytes in the file
-    if xxd "$f" 2>/dev/null | grep -q "$FW_MAGIC_HEX"; then
-        echo "      Found in: $f"
-        # Extract from magic offset to end of file
-        OFFSET=$(xxd "$f" | grep -m1 "$FW_MAGIC_HEX" | awk '{print $1}' | tr -d ':')
-        OFFSET_DEC=$((16#$OFFSET))
-        dd if="$f" of="$FW_OUT" bs=1 skip="$OFFSET_DEC" 2>/dev/null
-        FW_FOUND=1
-        break
-    fi
-done
+    for f in "$EXTRACT_DIR"/*; do
+        [[ -f "$f" ]] || continue
 
-if [[ $FW_FOUND -eq 0 ]]; then
-    # Fallback: search directly for .bin
+        if xxd "$f" 2>/dev/null | grep -q "$FW_MAGIC_HEX"; then
+            echo "      Found in: $f"
+
+            OFFSET=$(xxd "$f" | grep -m1 "$FW_MAGIC_HEX" | awk '{print $1}' | tr -d ':')
+            OFFSET_DEC=$((16#$OFFSET))
+
+            dd if="$f" of="$FW_OUT" bs=1 skip="$OFFSET_DEC" 2>/dev/null
+            FW_FOUND=1
+            break
+        fi
+    done
+fi
+
+if [[ "${FW_FOUND:-0}" -eq 0 && ! -f "$FW_OUT" ]]; then
     BIN=$(find "$EXTRACT_DIR" -name "*.bin" -size +100k 2>/dev/null | head -1)
     if [[ -n "$BIN" ]]; then
         cp "$BIN" "$FW_OUT"
-        FW_FOUND=1
         echo "      Found .bin directly: $BIN"
+        FW_FOUND=1
     fi
 fi
 
-if [[ $FW_FOUND -eq 0 ]]; then
+if [[ "${FW_FOUND:-0}" -eq 0 ]]; then
     echo ""
     echo "ERROR: Firmware not found automatically."
-    echo ""
-    echo "Manual alternative:"
-    echo "  1. Start a Windows VM or Bootcamp"
-    echo "  2. Install the Xbox Wireless Adapter driver"
-    echo "  3. Find file: C:\\Windows\\System32\\drivers\\mt7612us.bin"
-    echo "     or: C:\\Windows\\System32\\drivers\\MSFTWUDF.sys"
-    echo "  4. Copy into this folder and rename to: mt7612us.bin"
-    echo ""
-    echo "Alternative: use xone project on Linux:"
-    echo "  https://github.com/dlundqvist/xone"
-    echo "  There: install/firmware.sh extracts firmware automatically"
     exit 1
 fi
 
