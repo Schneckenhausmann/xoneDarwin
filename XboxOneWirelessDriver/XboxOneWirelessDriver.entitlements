@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <!--
+        ─────────────────────────────────────────────────────
+        Required entitlements for DriverKit extensions
+        These must be provisioned by Apple Developer Portal
+        ─────────────────────────────────────────────────────
+    -->
+
+    <!-- Marks this bundle as a DriverKit extension -->
+    <key>com.apple.developer.driverkit</key>
+    <true/>
+
+    <!-- USB transport: allows matching against USB devices -->
+    <key>com.apple.developer.driverkit.transport.usb</key>
+    <true/>
+
+    <!-- HID: allows publishing virtual HID devices -->
+    <key>com.apple.developer.driverkit.family.hid.device</key>
+    <true/>
+
+    <!-- HID event service family -->
+    <key>com.apple.developer.driverkit.family.hid.eventservice</key>
+    <true/>
+
+    <!--
+        ─────────────────────────────────────────────────────
+        System extension entitlement (for the host app)
+        ─────────────────────────────────────────────────────
+        The host application (separate target) needs this to
+        activate/deactivate the system extension:
+
+        <key>com.apple.developer.system-extension.install</key>
+        <true/>
+    -->
+
+    <!-- Allow inter-process communication with the host app -->
+    <key>com.apple.developer.driverkit.userclient-access</key>
+    <array>
+        <string>com.yourcompany.XboxOneWirelessDriverApp</string>
+    </array>
+
+</dict>
+</plist>

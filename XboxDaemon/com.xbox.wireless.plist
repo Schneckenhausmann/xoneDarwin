@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Label identifies the daemon in launchd -->
+    <key>Label</key>
+    <string>com.xbox.wireless</string>
+
+    <!-- Full path to the compiled daemon -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/xbox_daemon</string>
+    </array>
+
+    <!-- Auto-start at login -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Auto-restart on crash -->
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Log files -->
+    <key>StandardOutPath</key>
+    <string>/tmp/xbox_daemon.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/xbox_daemon_error.log</string>
+</dict>
+</plist>

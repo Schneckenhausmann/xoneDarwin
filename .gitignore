@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Build outputs
+.build/
+*.o
+*.dylib
+
+# Local binaries and logs
+XboxDaemon/xbox_daemon
+XboxDaemon/xbox_hid_bridge
+XboxDaemon/mapper_session.json
+XboxDaemon/*.log
+XboxDaemon/mt7612us.bin
+XboxDaemon/xbox_driver.cab
+XboxDaemon/xbox_driver_extracted/
+FIRMWARE/*.cab
+FIRMWARE/FW_ACC_*.bin
+
+# Temporary reference clones
+tmp_refs/
+
+# Local tooling config
+.claude/

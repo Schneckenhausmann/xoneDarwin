@@ -1,0 +1,47 @@
+// XboxOneWirelessDriver.xcconfig
+// Xcode build settings for the DriverKit extension target
+//
+// How to use:
+//   1. In Xcode: add a new "DriverKit Extension" target
+//   2. Assign this xcconfig to the target
+//   3. Set your Team ID and Bundle ID below
+
+// ── Identity ─────────────────────────────────────────────────────────────────
+PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.XboxOneWirelessDriver
+PRODUCT_NAME               = XboxOneWirelessDriver
+
+// ── Code Signing ─────────────────────────────────────────────────────────────
+// Replace with your Apple Developer Team ID from developer.apple.com
+DEVELOPMENT_TEAM           = YOUR_TEAM_ID_HERE
+CODE_SIGN_STYLE            = Manual
+CODE_SIGN_IDENTITY         = Apple Development
+
+PROVISIONING_PROFILE_SPECIFIER = Xbox One Wireless DriverKit Profile
+
+// ── Deployment ───────────────────────────────────────────────────────────────
+// DriverKit requires macOS 12.0+ for full stability; 11.0+ for basics
+MACOSX_DEPLOYMENT_TARGET   = 12.0
+SUPPORTED_PLATFORMS        = macosx
+ARCHS                      = arm64 x86_64   // universal: M1/M2/M3/M4 + Intel
+
+// ── Language ─────────────────────────────────────────────────────────────────
+CLANG_CXX_LANGUAGE_STANDARD = c++17
+CLANG_CXX_LIBRARY            = libc++
+GCC_C_LANGUAGE_STANDARD      = c17
+
+// ── Compiler Warnings ────────────────────────────────────────────────────────
+GCC_WARN_UNUSED_VARIABLE            = YES
+GCC_WARN_UNUSED_FUNCTION            = YES
+CLANG_WARN_UNREACHABLE_CODE         = YES
+CLANG_WARN_SUSPICIOUS_MOVE          = YES
+GCC_WARN_ABOUT_RETURN_TYPE          = YES_ERROR
+
+// ── DriverKit-specific ───────────────────────────────────────────────────────
+// Do NOT link against libSystem or standard libraries — DriverKit has its own
+OTHER_LDFLAGS              =
+INFOPLIST_FILE             = XboxOneWirelessDriver/Info.plist
+CODE_SIGN_ENTITLEMENTS     = XboxOneWirelessDriver/XboxOneWirelessDriver.entitlements
+
+// ── Optimization ─────────────────────────────────────────────────────────────
+GCC_OPTIMIZATION_LEVEL[config=Debug]   = 0
+GCC_OPTIMIZATION_LEVEL[config=Release] = s    // size-optimized for kernel space
